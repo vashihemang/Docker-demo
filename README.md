@@ -1,4 +1,4 @@
-# FastAPI Health Check API with Docker
+# FastAPI Health API with Docker
 
 A simple REST API built using Python, FastAPI, and Docker.
 
