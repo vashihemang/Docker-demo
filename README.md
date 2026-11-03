@@ -1,7 +1,5 @@
-# FastAPI Health API with Docker
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" width="20" height="20" alt="FastAPI"> **FastAPI**
-&nbsp;&nbsp;
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="20" height="20" alt="Docker"> **Docker**
+# <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" width="20" height="20" alt="FastAPI">FastAPI Health API with <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="20" height="20" alt="Docker"> Docker
+
 A simple REST API built using Python, FastAPI, and Docker.
 
 ## Features
