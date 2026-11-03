@@ -13,7 +13,7 @@ A simple REST API built using Python, FastAPI, and Docker.
 ## Project Structure
 
 ```text
-fastapi-docker-health-api/
+Docker-demo/
 ├── docker_demo.py
 ├── requirements.txt
 ├── Dockerfile
