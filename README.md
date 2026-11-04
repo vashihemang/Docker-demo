@@ -84,12 +84,6 @@ http://localhost:8000/docs
 docker compose down
 ```
 
-## API Testing using Postman :
-
-
-<img width="1917" height="1020" alt="image" src="https://github.com/user-attachments/assets/e85305a4-cea2-47fc-a053-53ac436ad289" />
-
-
 ## Technologies Used
 
 - Python 3.10
