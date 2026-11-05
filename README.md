@@ -14,11 +14,33 @@ A simple REST API built using Python, FastAPI, and Docker.
 
 ```text
 Docker-demo/
-├── docker_demo.py
-├── requirements.txt
+│
+├── main.py
+│
+├── fastapi_endpoint/
+│   │
+│   ├── main.py
+│   │
+│   ├── api/
+│   │   ├── v1/
+│   │   │   │
+│   │   │   └── endpoints/
+│   │   │       └── users.py
+│   │   │
+│   │   └── v2/
+│   │       │
+│   │       └── endpoints/
+│   │           └── users.py
+│   │
+│   └── models/
+│       └── users.py
+│
+│
 ├── Dockerfile
 ├── docker-compose.yml
+├── requirements.txt
 ├── .dockerignore
+├── .gitignore
 └── README.md
 ```
 
