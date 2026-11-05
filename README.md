@@ -48,67 +48,24 @@ Docker-demo/
 
 **GET /health**
 
-Response:
-
-```json
-{
-  "status": "ok"
-}
-```
-
-## Prerequisites
-
-- Python 3.10+
-- Docker Desktop
-- Docker Compose
-
-## Run with Docker Compose
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/vashihemang/Docker-demo
-```
-
-2. Navigate to the project:
-
-```bash
-cd Docker-demo
-```
-
-3. Build and start the application:
-
-```bash
-docker compose up --build -d
-```
-
-4. Check running containers:
-
-```bash
-docker compose ps
-```
-
-5. Test the API:
-
-```text
+- Default endpint : 
+```text 
 http://localhost:8000/health
 ```
-
-6. Open interactive API documentation:
-
-```text
-http://localhost:8000/docs
+- Version 1 endpoint : 
+```text 
+http://localhost:8000/api/v1/
+```
+- Version 2 endpoint : 
+```text 
+http://localhost:8000/api/v2/
 ```
 
-## Stop the Application :
-
-```bash
-docker compose down
-```
 
 ## Technologies Used
 
 - Python 3.10
+- Pydantic
 - FastAPI
 - Uvicorn
 - Docker
