@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Body, HTTPException , status
+from fastapi import APIrouter_v2, Body, HTTPException , status
 from models.user import Usercreate,UserCreateResponse,UserListResponse , UserUpdate , UserDetailResponse ,UserDeleteResponse
 import asyncio
 
-router = APIRouter(
-    prefix="/api/v1",
+router_v2 = APIrouter_v2(
+    prefix="/api/v2",
     tags=["Users"]
 )
 
@@ -13,7 +13,7 @@ user_id_counter = 1
 
 
 # 1. Create User (POST)
-@router.post("/users",response_model=UserCreateResponse,status_code=status.HTTP_201_CREATED)
+@router_v2.post("/users",response_model=UserCreateResponse,status_code=status.HTTP_201_CREATED)
 async def create_user(user: Usercreate):
 
     global user_id_counter
@@ -42,7 +42,7 @@ async def create_user(user: Usercreate):
 
 
 # 2. Get All Users (GET)
-@router.get("/all_users",response_model=UserListResponse,status_code=status.HTTP_200_OK)
+@router_v2.get("/all_users",response_model=UserListResponse,status_code=status.HTTP_200_OK)
 async def get_users():
 
     await asyncio.sleep(0)
@@ -54,7 +54,7 @@ async def get_users():
     }
 
 # 3. Get User By ID (GET)
-@router.get(
+@router_v2.get(
     "/fetch/user/{user_id}",
     response_model=UserDetailResponse,
     status_code=status.HTTP_200_OK
@@ -80,7 +80,7 @@ async def get_user(user_id: int):
 
 
 # 3. Update User (PUT)
-@router.put(
+@router_v2.put(
     "/user/{user_id}",
     response_model=UserDetailResponse,
     status_code=status.HTTP_200_OK
@@ -134,7 +134,7 @@ async def update_user(
     )
 
 
-@router.delete(
+@router_v2.delete(
     "/user/{user_id}",
     response_model=UserDeleteResponse,
     status_code=status.HTTP_200_OK
