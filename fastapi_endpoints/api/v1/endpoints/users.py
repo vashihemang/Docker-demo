@@ -1,5 +1,5 @@
-
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, HTTPException , status
+from schemas.users import Usercreate
 import asyncio
 
 router = APIRouter(
@@ -13,25 +13,15 @@ user_id_counter = 1
 
 
 # 1. Create User (POST)
-@router.post("/users")
-async def create_user(
-    user: dict = Body(
-        ...,
-        example={
-            "name": "Rahul Sharma",
-            "email": "rahul@gmail.com",
-            "phone": "9876543210",
-            "status": "active"
-        }
-    )
-):
+@router.post("/users",response_model=Usercreate,status_code=status.HTTP_201_CREATED)
+async def create_user(user:Usercreate):
     global user_id_counter
 
     # Async operation
     await asyncio.sleep(0)
 
     # Required field validation
-    if not user.get("name") or not user.get("email"):
+    if not user.name or not user.email:
         raise HTTPException(
             status_code=400,
             detail="Name and email are required"
@@ -39,7 +29,7 @@ async def create_user(
 
     # Check duplicate email
     for existing_user in users:
-        if existing_user["email"] == user["email"]:
+        if existing_user["email"] == user.email:
             raise HTTPException(
                 status_code=409,
                 detail="Email already exists"
@@ -48,6 +38,7 @@ async def create_user(
     new_user = {
         "id": user_id_counter,
         "name": user.get("name"),
+        "age":user.get("age"),
         "email": user.get("email"),
         "phone": user.get("phone"),
         "status": user.get("status", "active")
