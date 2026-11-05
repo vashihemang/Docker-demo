@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from api.v1.endpoints.users import router  
 import uvicorn as uv 
 
-app = FastAPI(title = "Hospital management Api")
+app = FastAPI(title = "Hospital management Api",version="1.0.0")
 app.include_router(router)
 
 # Health Check
@@ -13,7 +13,6 @@ async def health_check():
         "status": "success",
         "message": "API is running"
     }
-
 
 if __name__ == "__main__" : 
     uv.run(app=app)
