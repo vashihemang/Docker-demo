@@ -3,7 +3,6 @@ from fastapi import APIRouter, Body, HTTPException
 import asyncio
 
 router = APIRouter(
-    prefix="/api/v1",
     tags=["Users"]
 )
 

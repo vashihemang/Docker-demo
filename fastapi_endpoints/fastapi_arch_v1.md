@@ -3,21 +3,10 @@
 ```text
 fastapi_endpoint/
 │
-├── main.py
-│
 ├── api/
-│   ├── v1/
-│   │   └── endpoints/
-│   │       └── users.py
-│   │
-│   └── v2/
+│   └── v1/
 │       └── endpoints/
 │           └── users.py
 │
-├── models/
-│   └── users.py
-│
-└── tests/
-    └── test_users.py
-
+└── main.py
 ```

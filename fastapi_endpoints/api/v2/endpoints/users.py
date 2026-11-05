@@ -1,9 +1,8 @@
-from fastapi import APIrouter_v2, Body, HTTPException , status
+from fastapi import APIRouter, HTTPException , status
 from models.user import Usercreate,UserCreateResponse,UserListResponse , UserUpdate , UserDetailResponse ,UserDeleteResponse
 import asyncio
 
-router_v2 = APIrouter_v2(
-    prefix="/api/v2",
+router_v2 = APIRouter(  
     tags=["Users"]
 )
 
@@ -19,7 +18,17 @@ async def create_user(user: Usercreate):
     global user_id_counter
 
     await asyncio.sleep(0)
+    for existing_user in users:
 
+        if existing_user["email"].lower() == str(user.email).lower():
+
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={
+                    "status": "error",
+                    "message": "Email already exists"
+                }
+            )
 
     # Create New User
     new_user = {

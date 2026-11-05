@@ -14,11 +14,22 @@ app.include_router(router_v2,prefix="/api/v2")
 # Health Check
 @app.get("/health")
 async def health_check():
-
     return {
-        "status": "success",
-        "message": "API is running"
-    }
+            "status": "success",
+            "message": "API is running",
+            "versions": {
+                "v1": {
+                    "status": "active",
+                    "message": "V1 API is running"
+                },
+                "v2": {
+                    "status": "active",
+                    "message": "V2 API is running"
+                }
+            }
+        }
+
+
 
 if __name__ == "__main__" : 
     uv.run(app=app)

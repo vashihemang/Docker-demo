@@ -4,11 +4,12 @@ from pydantic import BaseModel , Field ,EmailStr
 
 # Create a users 
 class Usercreate (BaseModel) : 
-    name: str = Field(description="Full name of the user", examples=["Rahul Sharma"])
-    age: int = Field(description="Age in years", examples=[25])
-    email: EmailStr = Field(description="Verified email address", examples=["rahul@gmail.com"])
-    phone: str | None = Field(default=None, description="Contact number", examples=["9876543210"])
-    is_active: bool = Field(default=True, description="Account active status", examples=[True])
+    name: str = Field(...,description="Full name of the user",examples=["Rahul Sharma"])
+    age: int = Field(...,description="Age of the user",examples=[25])
+    email: EmailStr = Field(...,description="Registered email address",examples=["rahul@gmail.com"])
+    phone: str | None = Field(default=None,description="Registered contact number",examples=["9876543210"])
+    is_active: bool = Field(...,description="Indicates whether the user account is active",examples=[True])
+    
 
 # Create User Response
 class UserResponse(BaseModel):
