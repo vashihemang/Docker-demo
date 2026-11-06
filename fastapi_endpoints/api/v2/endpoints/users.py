@@ -11,7 +11,7 @@ users = []
 user_id_counter = 1
 
 
-# 1. Create User (POST)
+# Create User (POST)
 @router_v2.post("/users",response_model=UserCreateResponse,status_code=status.HTTP_201_CREATED)
 async def create_user(user: Usercreate):
 
@@ -50,7 +50,7 @@ async def create_user(user: Usercreate):
     }
 
 
-# 2. Get All Users (GET)
+#  Get All Users (GET)
 @router_v2.get("/all_users",response_model=UserListResponse,status_code=status.HTTP_200_OK)
 async def get_users():
 
@@ -62,7 +62,7 @@ async def get_users():
         "data": users
     }
 
-# 3. Get User By ID (GET)
+#  Get User By ID (GET)
 @router_v2.get(
     "/fetch/user/{user_id}",
     response_model=UserDetailResponse,
@@ -88,7 +88,7 @@ async def get_user(user_id: int):
 
 
 
-# 3. Update User (PUT)
+#  Update User (PUT)
 @router_v2.put(
     "/user/{user_id}",
     response_model=UserDetailResponse,
@@ -142,6 +142,7 @@ async def update_user(
         detail="User not found"
     )
 
+# DELETE USER (DELETE)
 
 @router_v2.delete(
     "/user/{user_id}",
