@@ -37,14 +37,14 @@ Docker-demo/
 │   │
 │   ├── api/
 │   │   ├── v1/
-│   │   │       └── users.py
+│   │   │    └── users.py
 │   │   │
 │   │   ├── v2/
-│   │   │       └── users.py
+│   │   │    └── users.py
 │   │   │
 │   │   └── v3/
-│   │           ├── users.py
-│   │           └── tasks.py
+│   │        ├── users.py
+│   │        └── tasks.py
 │   │
 │   ├── core/
 │   │   └── config.py
@@ -213,6 +213,7 @@ Once the application is running:
 |---|---|
 | Swagger UI | http://127.0.0.1:8000/docs |
 | ReDoc | http://127.0.0.1:8000/redoc |
+| Postman | http://127.0.0.1:8000/health |
 
 ## 📋 Task Status
 
@@ -225,11 +226,5 @@ Once the application is running:
 - `active`
 - `inactive`
 
-## 🔄 Git Commands
 
-```bash
-git add .
-git commit -m "Update README documentation"
-git push origin main
-```
 
