@@ -51,7 +51,7 @@ git clone https://github.com/vashihemang/Docker-demo
 2. Navigate to the project:
 
 ```bash
-cd Docker-demo/dockerfile
+cd Docker-demo/Docker
 ```
 
 3. Build and start the application:
