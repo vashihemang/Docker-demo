@@ -51,7 +51,6 @@ Docker-demo/
 │   │
 │   ├── db/
 │   │   ├── database.py
-│   │   └── session.py
 │   │
 │   └── models/
 │       ├── users.py
