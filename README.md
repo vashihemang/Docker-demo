@@ -59,23 +59,77 @@ The project provides APIs for user and task management, integrates PostgreSQL fo
 
 ```text
 Docker-demo/
+├── README.md
+├── requirements.txt
+├── .gitignore
 │
-├── Docker/                    # Docker-related files
-├── Postman/                   # API testing resources
+├── Docker/
+│   ├── .dockerignore
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   ├── docker.md
+│   └── docker_demo.py
+│
+├── Postman/
+│   ├── PMS Task Manager API.postman_collection.json
+│   ├── v1/
+│   │   ├── Health management api.postman_collection.json
+│   │   └── Screenshot 2026-11-03 161531.png
+│   └── v2/
+│       ├── Health management api with data validation and error message.postman_collection.json
+│       └── error_messages/
+│           ├── Screenshot 2026-11-05 154151.png
+│           ├── Screenshot 2026-11-05 154224.png
+│           ├── Screenshot 2026-11-05 154258.png
+│           ├── Screenshot 2026-11-05 154935.png
+│           └── Screenshot 2026-11-05 161015.png
+│
 ├── fastapi_endpoints/
-│   ├── main.py                # Application entry point
-│   └── api/
-│       ├── v1/                # Version 1 endpoints
-│       ├── v2/                # Version 2 endpoints
-│       └── v3/                # Version 3 endpoints
-│           ├── users.py       # User API routes
-│           └── tasks.py       # Task API routes
-│   ├── core/                  # Application configuration
-│   ├── db/                    # Database connection and session
-│   └── models/                # Database models
+│   ├── .env
+│   ├── main.py
+│   ├── api/
+│   │   ├── auth.py
+│   │   ├── fastapi_arch_v1.md
+│   │   ├── fastapi_arch_v2.md
+│   │   ├── v1/
+│   │   │   └── endpoints/
+│   │   │       └── users.py
+│   │   ├── v2/
+│   │   │   └── endpoints/
+│   │   │       └── users.py
+│   │   └── v3/
+│   │       └── endpoints/
+│   │           ├── tasks.py
+│   │           └── users.py
+│   │
+│   ├── core/
+│   │   ├── config.py
+│   │   └── security.py
+│   │
+│   ├── db/
+│   │   └── database.py
+│   │
+│   ├── models/
+│   │   ├── auth.py
+│   │   ├── user.py
+│   │   ├── users_v3.py
+│   │   └── __pycache__/
+│   │
+│   ├── scripts/
+│   │   ├── __init__.py
+│   │   └── seed_users.py
+│   │
+│   └── tests/
+│       ├── conftest.py
+│       ├── test_auth_tasks.py
+│       └── __pycache__/
 │
-├── requirements.txt           # Python dependencies
-└── README.md                  # Project documentation
+└── .pytest_cache/
+    ├── .gitignore
+    ├── CACHEDIR.TAG
+    ├── README.md
+    └── v/
+        └── cache/
 ```
 
 > Note: The structure above is a simplified overview. Directory names and file locations should match the actual repository.
