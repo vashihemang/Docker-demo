@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException , status
+from fastapi import APIRouter, Depends, HTTPException, status
 from models.user import Usercreate,UserCreateResponse,UserListResponse , UserUpdate , UserDetailResponse ,UserDeleteResponse
+from core.security import require_teacher
 import asyncio
 
 router_v2 = APIRouter(  
-    tags=["Users"]
+    tags=["Users"],
+    dependencies=[Depends(require_teacher)],
 )
 
 # Temporary in-memory database

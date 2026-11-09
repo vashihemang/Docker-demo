@@ -1,9 +1,12 @@
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 import asyncio
 
+from core.security import require_teacher
+
 router = APIRouter(
-    tags=["Users"]
+    tags=["Users"],
+    dependencies=[Depends(require_teacher)],
 )
 
 # Temporary in-memory database

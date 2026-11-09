@@ -1,23 +1,34 @@
-from fastapi import FastAPI 
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+
+from api.auth import router_auth
 from api.v1.endpoints.users import router 
 from api.v2.endpoints.users import router_v2 
 from api.v3.endpoints.users import router_v3
 from api.v3.endpoints.tasks import router_task
+from core.security import validate_security_settings
+from db.database import initialize_database
 import uvicorn as uv 
 
-# API Version 1
-app = FastAPI(title = "Hospital management Api",version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    validate_security_settings()
+    initialize_database()
+    yield
+
+
+app = FastAPI(
+    title="PMS Task Manager API",
+    version="1.0.0",
+    lifespan=lifespan,
+)
 app.include_router(router,prefix="/api/v1")
-
-
-# API Version 2
 app.include_router(router_v2,prefix="/api/v2")
-
-# API Version 3
-#  1. User Route : 
 app.include_router(router_v3,prefix="/api/v3")
-#  2. Task Route :
 app.include_router(router_task,prefix="/tasks")
+app.include_router(router_auth, prefix="/auth")
 
 # Health Check
 @app.get("/health")

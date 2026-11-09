@@ -1,0 +1,331 @@
+{
+  "info": {
+    "_postman_id": "c375ad05-4d4c-42ea-a7bd-98692a0494ec",
+    "name": "PMS Task Manager API",
+    "description": "Teacher/student JWT, task assignment, task updates, and authorization checks. Set the teacher and student credential variables before running.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "teacher_email", "value": "teacher@example.com" },
+    { "key": "teacher_password", "value": "" },
+    { "key": "student_email", "value": "student@example.com" },
+    { "key": "student_password", "value": "" },
+    { "key": "teacher_access_token", "value": "" },
+    { "key": "teacher_refresh_token", "value": "" },
+    { "key": "student_access_token", "value": "" },
+    { "key": "student_refresh_token", "value": "" },
+    { "key": "student_id", "value": "" },
+    { "key": "task_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Teacher login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{teacher_email}}\",\"password\":\"{{teacher_password}}\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{base_url}}/auth/login"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Teacher login succeeds', function () { pm.response.to.have.status(200); });",
+            "const data = pm.response.json();",
+            "pm.collectionVariables.set('teacher_access_token', data.access_token);",
+            "pm.collectionVariables.set('teacher_refresh_token', data.refresh_token);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Teacher profile",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{teacher_access_token}}" }],
+        "url": "{{base_url}}/auth/me"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Teacher profile is returned', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().role).to.eql('teacher'); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Student login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{student_email}}\",\"password\":\"{{student_password}}\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{base_url}}/auth/login"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Student login succeeds', function () { pm.response.to.have.status(200); });",
+            "const data = pm.response.json();",
+            "pm.collectionVariables.set('student_access_token', data.access_token);",
+            "pm.collectionVariables.set('student_refresh_token', data.refresh_token);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Student profile",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{student_access_token}}" }],
+        "url": "{{base_url}}/auth/me"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Student profile is returned', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().role).to.eql('student'); });",
+            "pm.collectionVariables.set('student_id', pm.response.json().id);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Missing token is rejected",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/tasks/"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Missing token returns 401', function () { pm.response.to.have.status(401); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Invalid login is rejected",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{student_email}}\",\"password\":\"incorrect-password\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{base_url}}/auth/login"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Invalid credentials return 401', function () { pm.response.to.have.status(401); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Teacher creates and assigns task",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{teacher_access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\":\"Complete the project\",\"description\":\"Submit the PMS task\",\"user_id\":{{student_id}}}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{base_url}}/tasks/"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Teacher assigns the task', function () { pm.response.to.have.status(201); });",
+            "pm.collectionVariables.set('task_id', pm.response.json().data.id);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Student lists own tasks",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{student_access_token}}" }],
+        "url": "{{base_url}}/tasks/"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Student sees assigned task', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().data.some(function (task) { return task.id === Number(pm.collectionVariables.get('task_id')); })).to.eql(true); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Student updates status and work notes",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{student_access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"status\":\"in_progress\",\"work_notes\":\"Work started\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{base_url}}/tasks/{{task_id}}"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Student updates own progress', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().status).to.eql('in_progress'); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Student cannot reassign task",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{student_access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"user_id\":{{student_id}}}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{base_url}}/tasks/{{task_id}}"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Student cannot reassign tasks', function () { pm.response.to.have.status(403); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Student cannot delete task",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{student_access_token}}" }],
+        "url": "{{base_url}}/tasks/{{task_id}}"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Student cannot delete tasks', function () { pm.response.to.have.status(403); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Teacher views progress",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{teacher_access_token}}" }],
+        "url": "{{base_url}}/tasks/progress"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Teacher can view task progress', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().by_status.in_progress).to.be.above(0); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Rotate student refresh token",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"refresh_token\":\"{{student_refresh_token}}\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{base_url}}/auth/refresh"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Refresh token rotates', function () { pm.response.to.have.status(200); });",
+            "pm.collectionVariables.set('student_access_token', pm.response.json().access_token);",
+            "pm.collectionVariables.set('student_refresh_token', pm.response.json().refresh_token);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Student logout revokes session",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{student_access_token}}" }],
+        "url": "{{base_url}}/auth/logout"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Student logs out', function () { pm.response.to.have.status(200); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Revoked student token is rejected",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{student_access_token}}" }],
+        "url": "{{base_url}}/auth/me"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Revoked token returns 401', function () { pm.response.to.have.status(401); });"
+          ]
+        }
+      }]
+    }
+  ]
+}

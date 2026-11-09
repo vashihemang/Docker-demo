@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
 
 from core.config import get_db
-from db.database import User 
+from core.security import hash_password, require_teacher
+from db.database import User
 from models.users_v3 import (
     Usercreate,
     UserUpdate,
@@ -14,7 +15,8 @@ from models.users_v3 import (
 )
 
 router_v3 = APIRouter(
-    tags=["Users"]
+    tags=["Users"],
+    dependencies=[Depends(require_teacher)],
 )
 
 
@@ -29,15 +31,8 @@ def create_user(
     db: Session = Depends(get_db)
 ):
     try:
-        # Debugging
-        print("Incoming Email:", repr(user.email))
-
-        # Check duplicate email
-        existing_user = db.query(User).filter(
-            User.email == user.email
-        ).first()
-
-        print("Existing User:", existing_user)
+        email = str(user.email).lower()
+        existing_user = db.query(User).filter(func.lower(User.email) == email).first()
 
         if existing_user:
             raise HTTPException(
@@ -45,13 +40,13 @@ def create_user(
                 detail="Email already registered"
             )
 
-        # Create new user
         new_user = User(
             name=user.name,
-            age=user.age,
-            email=user.email,
+            email=email,
             phone=user.phone,
-            status=user.is_active
+            status="active",
+            role="student",
+            password_hash=hash_password(user.password),
         )
 
         db.add(new_user)
@@ -64,10 +59,6 @@ def create_user(
         }
 
     except HTTPException:
-        raise
-
-    except Exception:
-        db.rollback()
         raise
 
 # GET ALL USERS
@@ -151,7 +142,7 @@ def update_user(
 
     if "email" in update_data:
         existing = db.query(User).filter(
-            User.email == update_data["email"],
+            User.email == str(update_data["email"]).lower(),
             User.id != user_id
         ).first()
 
@@ -162,6 +153,8 @@ def update_user(
             )
 
     for key, value in update_data.items():
+        if key == "email":
+            value = str(value).lower()
         setattr(user, key, value)
 
     db.commit()
