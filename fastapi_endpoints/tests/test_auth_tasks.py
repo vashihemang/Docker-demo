@@ -77,6 +77,17 @@ def test_teacher_student_task_permissions_and_validation(client: TestClient):
         json={"email": "student@example.com", "password": "wrong-password"},
     ).status_code == 401
 
+    student_login = client.post(
+        "/auth/student/login",
+        json={"email": "student@example.com", "password": "student-pass-123"},
+    )
+    assert student_login.status_code == 200
+    assert "access_token" in student_login.json()
+    assert client.post(
+        "/auth/student/login",
+        json={"email": "teacher@example.com", "password": "teacher-pass-123"},
+    ).status_code == 401
+
     teacher_tokens = login(client, "teacher@example.com", "teacher-pass-123")
     student_tokens = login(client, "student@example.com", "student-pass-123")
     teacher_headers = bearer(teacher_tokens["access_token"])
@@ -122,9 +133,18 @@ def test_teacher_student_task_permissions_and_validation(client: TestClient):
         headers=student_headers,
     ).status_code == 403
     assert client.get("/tasks/progress", headers=student_headers).status_code == 403
+    assert client.get("/tasks/students", headers=student_headers).status_code == 403
     assert client.get("/api/v3/all_users", headers=student_headers).status_code == 403
     assert client.get("/api/v3/all_users", headers=teacher_headers).status_code == 200
     assert client.get("/tasks/", headers=teacher_headers).json()["total_tasks"] == 1
+    student_task_overview = client.get("/tasks/students", headers=teacher_headers)
+    assert student_task_overview.status_code == 200
+    first_student_data = student_task_overview.json()["data"][0]
+    assert first_student_data["user_id"] == student_id
+    assert first_student_data["name"] == "Test Student"
+    assert first_student_data["total_tasks"] == 1
+    assert first_student_data["tasks"][0]["id"] == task_id
+    assert first_student_data["tasks"][0]["status"] == "in_progress"
 
     assert client.post(
         "/tasks/",
@@ -135,6 +155,11 @@ def test_teacher_student_task_permissions_and_validation(client: TestClient):
         "/tasks/",
         headers=teacher_headers,
         json={"title": "Bad status", "status": "finished", "user_id": student_id},
+    ).status_code == 422
+    assert client.post(
+        "/tasks/",
+        headers=teacher_headers,
+        json={"title": "Premature status", "status": "in_progress", "user_id": student_id},
     ).status_code == 422
     assert client.post(
         "/tasks/",
@@ -166,6 +191,30 @@ def test_teacher_student_task_permissions_and_validation(client: TestClient):
         headers=teacher_headers,
         json={"title": "Private task", "user_id": second_student_id},
     ).json()["data"]
+    all_student_tasks = client.get("/tasks/students", headers=teacher_headers).json()["data"]
+    assert [student["name"] for student in all_student_tasks] == [
+        "Test Student",
+        "Second Student",
+    ]
+    assert [task["title"] for task in all_student_tasks[1]["tasks"]] == ["Private task"]
+    assert client.put(
+        f"/tasks/{second_task['id']}",
+        headers=teacher_headers,
+        json={"status": "done"},
+    ).status_code == 403
+    assert client.put(
+        f"/tasks/{second_task['id']}",
+        headers=student_headers,
+        json={"status": "pending"},
+    ).status_code == 404
+    second_student_headers = bearer(
+        login(client, "second@example.com", "student-pass-456")["access_token"]
+    )
+    assert client.put(
+        f"/tasks/{second_task['id']}",
+        headers=second_student_headers,
+        json={"status": "done"},
+    ).status_code == 200
     assert client.get(
         f"/tasks/{second_task['id']}",
         headers=student_headers,
@@ -197,6 +246,78 @@ def test_teacher_student_task_permissions_and_validation(client: TestClient):
         f"/tasks/{second_task['id']}",
         headers=teacher_headers,
     ).status_code == 200
+
+
+def test_teacher_registration_and_login_require_teacher_credentials(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    registration_key = "test-teacher-registration-key-that-is-long-enough"
+    monkeypatch.setenv("TEACHER_REGISTRATION_KEY", registration_key)
+    teacher_payload = {
+        "name": "New Teacher",
+        "email": "new-teacher@example.com",
+        "password": "teacher-pass-456",
+    }
+
+    assert client.post(
+        "/auth/teacher/register",
+        json=teacher_payload,
+        headers={"X-Teacher-Registration-Key": "wrong-key"},
+    ).status_code == 403
+
+    registration = client.post(
+        "/auth/teacher/register",
+        json=teacher_payload,
+        headers={"X-Teacher-Registration-Key": registration_key},
+    )
+    assert registration.status_code == 201
+    assert registration.json()["role"] == "teacher"
+    assert "password_hash" not in registration.json()
+
+    teacher_login = client.post(
+        "/auth/teacher/login",
+        json={
+            "email": teacher_payload["email"],
+            "password": teacher_payload["password"],
+        },
+    )
+    assert teacher_login.status_code == 200
+    assert "access_token" in teacher_login.json()
+
+    student_registration = client.post(
+        "/auth/register",
+        json={
+            "name": "New Student",
+            "email": "new-student@example.com",
+            "password": "student-pass-456",
+        },
+    )
+    assert student_registration.status_code == 201
+    assert client.post(
+        "/auth/teacher/login",
+        json={
+            "email": "new-student@example.com",
+            "password": "student-pass-456",
+        },
+    ).status_code == 401
+
+
+def test_teacher_registration_requires_configuration(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    monkeypatch.delenv("TEACHER_REGISTRATION_KEY", raising=False)
+    response = client.post(
+        "/auth/teacher/register",
+        json={
+            "name": "New Teacher",
+            "email": "unconfigured-teacher@example.com",
+            "password": "teacher-pass-456",
+        },
+        headers={"X-Teacher-Registration-Key": "any-key"},
+    )
+    assert response.status_code == 503
 
 
 def test_refresh_rotation_and_logout_revoke_sessions(client: TestClient):

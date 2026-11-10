@@ -8,14 +8,12 @@ from api.v2.endpoints.users import router_v2
 from api.v3.endpoints.users import router_v3
 from api.v3.endpoints.tasks import router_task
 from core.security import validate_security_settings
-from db.database import initialize_database
 import uvicorn as uv 
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     validate_security_settings()
-    initialize_database()
     yield
 
 

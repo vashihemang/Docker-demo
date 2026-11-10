@@ -57,7 +57,7 @@ class TaskCreate(BaseModel):
 
     title: str = Field(..., min_length=2, max_length=200)
     description: str | None = Field(default=None, max_length=10000)
-    status: Literal["pending", "in_progress", "done"] = "pending"
+    status: Literal["pending"] = "pending"
     user_id: int = Field(..., gt=0)
 
     @field_validator("title")
@@ -122,6 +122,18 @@ class TaskListResponse(BaseModel):
     message: str
     total_tasks: int
     data: list[TaskResponse]
+
+
+class StudentTasksResponse(BaseModel):
+    user_id: int
+    name: str
+    total_tasks: int
+    tasks: list[TaskResponse]
+
+
+class StudentTaskListResponse(BaseModel):
+    message: str
+    data: list[StudentTasksResponse]
 
 
 class UserWithTasksResponse(BaseModel):

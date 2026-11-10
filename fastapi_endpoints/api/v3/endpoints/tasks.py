@@ -10,7 +10,8 @@ from models.users_v3 import (
     TaskUpdate,
     TaskResponse,
     TaskCreateResponse,
-    TaskListResponse
+    TaskListResponse,
+    StudentTaskListResponse,
 )
 
 router_task = APIRouter(
@@ -107,6 +108,31 @@ def get_progress(
     }
 
 
+@router_task.get("/students", response_model=StudentTaskListResponse)
+def get_student_tasks(
+    db: Session = Depends(get_db),
+    _: AuthenticatedUser = Depends(require_teacher),
+):
+    rows = (
+        db.query(User, Task)
+        .outerjoin(Task, Task.user_id == User.id)
+        .filter(User.role == "student")
+        .order_by(User.id, Task.id)
+        .all()
+    )
+    students: dict[int, dict] = {}
+    for student, task in rows:
+        student_data = students.setdefault(
+            student.id,
+            {"user_id": student.id, "name": student.name, "total_tasks": 0, "tasks": []},
+        )
+        if task is not None:
+            student_data["tasks"].append(task)
+            student_data["total_tasks"] += 1
+
+    return {"message": "Student tasks fetched successfully", "data": list(students.values())}
+
+
 # GET SINGLE TASK
 @router_task.get("/{task_id}", response_model=TaskResponse)
 def get_task(
@@ -145,6 +171,16 @@ def update_task(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Students may only update task status and work notes",
             )
+        if update_data.get("status") == "pending":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Students may only set task status to in_progress or done",
+            )
+    elif update_data.get("status") not in (None, "pending"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Teachers may only set task status to pending",
+        )
     if "user_id" in update_data:
         assignee = db.query(User).filter(User.id == update_data["user_id"]).first()
         if assignee is None:

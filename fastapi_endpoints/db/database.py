@@ -1,9 +1,7 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, text
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from sqlalchemy import inspect, text
-
-from core.config import Base, engine
+from core.config import Base
 
 
 # USERS MODEL
@@ -75,33 +73,3 @@ class AuthSession(Base):
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     user = relationship("User", back_populates="auth_sessions")
-
-
-def initialize_database() -> None:
-    inspector = inspect(engine)
-    existing_tables = set(inspector.get_table_names())
-
-    with engine.begin() as connection:
-        if "users" in existing_tables:
-            user_columns = {
-                column["name"] for column in inspect(connection).get_columns("users")
-            }
-            if "password_hash" not in user_columns:
-                connection.execute(
-                    text("ALTER TABLE users ADD COLUMN password_hash VARCHAR(255)")
-                )
-            if "role" not in user_columns:
-                connection.execute(
-                    text(
-                        "ALTER TABLE users ADD COLUMN role VARCHAR(20) "
-                        "NOT NULL DEFAULT 'student'"
-                    )
-                )
-        if "tasks" in existing_tables:
-            task_columns = {
-                column["name"] for column in inspect(connection).get_columns("tasks")
-            }
-            if "work_notes" not in task_columns:
-                connection.execute(text("ALTER TABLE tasks ADD COLUMN work_notes TEXT"))
-
-    Base.metadata.create_all(bind=engine)
