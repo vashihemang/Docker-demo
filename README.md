@@ -59,7 +59,7 @@ Built with FastAPI and PostgreSQL, the project organizes API endpoints into mult
 ```text
 Docker-demo/
 ├── .gitignore
-├── README.md                 (abhi khaali hai)
+├── README.md                 
 ├── requirements.txt
 ├── Docker/
 │   ├── .dockerignore
