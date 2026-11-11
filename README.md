@@ -333,13 +333,21 @@ Use the Postman resources in the repository or the FastAPI-generated documentati
 5. Enter the required parameters and request body.
 6. Execute the request and inspect the response.
 
-For the documented health-check endpoint, try:
+For the documented college management endpoint, try:
 
 ```bash
 curl http://localhost:8000/health
 ```
 
 This request assumes the application exposes `GET /health` on the mapped port.
+
+### 🧪 Pytest Results
+
+The authentication and task API tests are run with **pytest**.
+
+```bash
+pytest fastapi_endpoints/tests/test_auth_tasks.py -v
+```
 
 ## 🩺 Troubleshooting
 
