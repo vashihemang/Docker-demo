@@ -47,23 +47,48 @@ def create_task(
 
 @router_task.get("/", response_model=TaskListResponse)
 def get_tasks(
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=100),
     status: str | None = Query(
         default=None,
-        pattern="^(pending|in_progress|done)$"
+        pattern="^(pending|in_progress|done)$",
     ),
+    user_id: int | None = Query(default=None, ge=1),
+    assigned_user: int | None = Query(default=None, ge=1),
+    search: str | None = Query(default=None),
+    title: str | None = Query(default=None),
     current: AuthenticatedUser = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
+    if user_id is None and assigned_user is not None:
+        user_id = assigned_user
+
+    if title is not None and search is None:
+        search = title
+    elif title is not None and search is not None:
+        search = search or title
+
     query = db.query(Task)
     if current.user.role == "student":
         query = query.filter(Task.user_id == current.user.id)
     if status:
         query = query.filter(Task.status == status)
-    tasks = query.order_by(Task.id).all()
+    if user_id is not None:
+        query = query.filter(Task.user_id == user_id)
+    if search and search.strip():
+        query = query.filter(Task.title.ilike(f"%{search.strip()}%"))
+
+    total_tasks = query.count()
+    total_pages = (total_tasks + limit - 1) // limit if total_tasks else 1
+    tasks = query.order_by(Task.id).offset((page - 1) * limit).limit(limit).all()
+
     return {
         "message": "Tasks fetched successfully",
-        "total_tasks": len(tasks),
-        "data": tasks
+        "page": page,
+        "limit": limit,
+        "total_tasks": total_tasks,
+        "total_pages": total_pages,
+        "data": tasks,
     }
 
 

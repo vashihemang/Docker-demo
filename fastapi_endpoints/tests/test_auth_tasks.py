@@ -4,18 +4,19 @@ import jwt
 import pytest
 from fastapi.testclient import TestClient
 
-from core.config import SessionLocal, engine
+from core.config import SessionLocal
 from core.security import hash_password
-from db.database import AuthSession, Base, User
+from db.database import AuthSession, Task, User
 from main import app
 
 
 @pytest.fixture
 def client():
     with TestClient(app) as test_client:
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
         with SessionLocal.begin() as db:
+            db.query(AuthSession).delete(synchronize_session=False)
+            db.query(Task).delete(synchronize_session=False)
+            db.query(User).delete(synchronize_session=False)
             db.add(
                 User(
                     name="Test Teacher",
@@ -26,7 +27,6 @@ def client():
                 )
             )
         yield test_client
-        Base.metadata.drop_all(engine)
 
 
 def login(client: TestClient, email: str, password: str) -> dict[str, str]:
@@ -391,3 +391,70 @@ def test_expired_access_and_refresh_sessions_are_rejected(client: TestClient):
         "/auth/refresh",
         json={"refresh_token": tokens["refresh_token"]},
     ).status_code == 401
+
+
+def test_tasks_support_pagination_search_and_filters(client: TestClient):
+    teacher_tokens = login(client, "teacher@example.com", "teacher-pass-123")
+    teacher_headers = bearer(teacher_tokens["access_token"])
+
+    second_student_response = client.post(
+        "/auth/register",
+        json={
+            "name": "Second Student",
+            "email": "second-task-filter@example.com",
+            "password": "student-pass-789",
+        },
+    )
+    second_student_id = second_student_response.json()["id"]
+
+    created = [
+        client.post(
+            "/tasks/",
+            headers=teacher_headers,
+            json={"title": "Alpha assignment", "user_id": second_student_id},
+        ),
+        client.post(
+            "/tasks/",
+            headers=teacher_headers,
+            json={"title": "Beta report", "user_id": second_student_id},
+        ),
+        client.post(
+            "/tasks/",
+            headers=teacher_headers,
+            json={"title": "Gamma review", "user_id": second_student_id},
+        ),
+    ]
+    assert all(response.status_code == 201 for response in created)
+
+    response = client.get(
+        "/tasks/",
+        headers=teacher_headers,
+        params={
+            "page": 1,
+            "limit": 2,
+            "search": "assignment",
+            "status": "pending",
+            "user_id": second_student_id,
+        },
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["page"] == 1
+    assert payload["limit"] == 2
+    assert payload["total_pages"] >= 1
+    assert payload["total_tasks"] == 1
+    assert len(payload["data"]) == 1
+    assert payload["data"][0]["title"] == "Alpha assignment"
+
+    response = client.get(
+        "/tasks/",
+        headers=teacher_headers,
+        params={"page": 1, "limit": 10, "assigned_user": second_student_id},
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert [task["title"] for task in payload["data"]] == [
+        "Alpha assignment",
+        "Beta report",
+        "Gamma review",
+    ]

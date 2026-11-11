@@ -19,12 +19,17 @@ user_id_counter = 1
 async def create_user(
     user: dict = Body(
         ...,
-        example={
-            "name": "Rahul Sharma",
-            "email": "rahul@gmail.com",
-            "phone": "9876543210",
-            "status": "active"
-        }
+        examples={
+            "default": {
+                "summary": "Example user",
+                "value": {
+                    "name": "Rahul Sharma",
+                    "email": "rahul@gmail.com",
+                    "phone": "9876543210",
+                    "status": "active",
+                },
+            }
+        },
     )
 ):
     global user_id_counter
@@ -102,12 +107,17 @@ async def update_user(
     user_id: int,
     user_data: dict = Body(
         ...,
-        example={
-            "name": "Rahul Sharma",
-            "email": "rahul@gmail.com",
-            "phone": "9876543210",
-            "status": "active"
-        }
+        examples={
+            "default": {
+                "summary": "Example user",
+                "value": {
+                    "name": "Rahul Sharma",
+                    "email": "rahul@gmail.com",
+                    "phone": "9876543210",
+                    "status": "active",
+                },
+            }
+        },
     )
 ):
 

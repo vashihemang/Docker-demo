@@ -120,7 +120,10 @@ class TaskCreateResponse(BaseModel):
 
 class TaskListResponse(BaseModel):
     message: str
-    total_tasks: int
+    page: int = Field(..., ge=1)
+    limit: int = Field(..., ge=1)
+    total_tasks: int = Field(..., ge=0)
+    total_pages: int = Field(..., ge=1)
     data: list[TaskResponse]
 
 
