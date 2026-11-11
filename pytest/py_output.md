@@ -18,9 +18,8 @@ Automated tests are implemented using **Pytest** to verify authentication, autho
 
 ### Test Execution Output
 
-(myenv) PS D:\docker_demo\Docker-demo\fastapi_endpoints\tests> pytest test_auth_tasks.py -v 
-
 ```text
+(myenv) PS D:\docker_demo\Docker-demo\fastapi_endpoints\tests> pytest test_auth_tasks.py -v
 ============================= test session starts ==============================
 
 collected 6 items
