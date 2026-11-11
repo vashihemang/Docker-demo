@@ -17,6 +17,9 @@
   <a href="https://www.docker.com/">
     <img src="https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white" alt="Docker">
   </a>
+  <a href="https://docs.pytest.org">
+    <img src="https://img.shields.io/badge/pytest-tested-0A9EDC?logo=pytest&logoColor=white" alt="pytest">
+  </a>
 </p>
 
 ---
