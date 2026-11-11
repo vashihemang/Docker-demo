@@ -346,7 +346,7 @@ This request assumes the application exposes `GET /health` on the mapped port.
 The authentication and task API tests are run with **pytest**.
 
 ```bash
-pytest fastapi_endpoints/tests/test_auth_tasks.py -v
+(myenv) PS D:\docker_demo\Docker-demo\fastapi_endpoints\tests> pytest test_auth_tasks.py -v
 ```
 
 ## 🩺 Troubleshooting
