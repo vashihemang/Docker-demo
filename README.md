@@ -194,53 +194,14 @@ The API should be available at:
 - **Swagger UI:** http://127.0.0.1:8000/docs
 - **ReDoc:** http://127.0.0.1:8000/redoc
 
+### 🚀 Deployment & API Endpoints
+
+The merged API endpoints are deployed and accessible through Render.
+
+🔗 **GitHub Repository:** [Task Manager API](https://github.com/vashihemang/task-manager-api)
+
+Explore the repository for setup instructions, API endpoints, and deployment details.
 The database must be configured and accessible before database-backed endpoints can work.
-
-## 🐳 Run with Docker
-
-Docker is the recommended option for a reproducible development environment.
-
-### Build and Start
-
-From the repository root:
-
-```bash
-docker compose up --build
-```
-
-To run containers in the background:
-
-```bash
-docker compose up --build -d
-```
-
-### Manage Containers
-
-Check service status:
-
-```bash
-docker compose ps
-```
-
-View logs:
-
-```bash
-docker compose logs -f
-```
-
-Stop the services:
-
-```bash
-docker compose down
-```
-
-Rebuild the application after changing its dependencies or Docker configuration:
-
-```bash
-docker compose up --build -d
-```
-
-> Ensure `docker-compose.yml` defines the required application and database services and the correct environment variables. The commands depend on the services configured in that file.
 
 ## 🔌 API Endpoints
 
@@ -291,6 +252,51 @@ The documented API design includes versioned user endpoints and task endpoints i
 | `DELETE` | `/api/v3/tasks/{task_id}` | Delete a task |
 
 **Note:** Confirm these routes against the active branch and generated OpenAPI documentation. Actual route prefixes and supported methods may differ.
+## 🐳 Run with Docker
+
+Docker is the recommended option for a reproducible development environment.
+
+### Build and Start
+
+From the repository root:
+
+```bash
+docker compose up --build
+```
+
+To run containers in the background:
+
+```bash
+docker compose up --build -d
+```
+
+### Manage Containers
+
+Check service status:
+
+```bash
+docker compose ps
+```
+
+View logs:
+
+```bash
+docker compose logs -f
+```
+
+Stop the services:
+
+```bash
+docker compose down
+```
+
+Rebuild the application after changing its dependencies or Docker configuration:
+
+```bash
+docker compose up --build -d
+```
+
+> Ensure `docker-compose.yml` defines the required application and database services and the correct environment variables. The commands depend on the services configured in that file.
 
 ## 🗄️ Database Design
 
@@ -381,13 +387,4 @@ This project is useful for learning:
 - Multi-service development with Docker Compose
 - Interactive API documentation and endpoint testing
 
-## 🤝 Contributing
-
-Contributions and suggestions are welcome.
-
-1. Fork the repository.
-2. Create a feature branch.
-3. Implement and test your changes.
-4. Commit with a descriptive message.
-5. Open a pull request.
 
